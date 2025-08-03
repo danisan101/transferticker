@@ -44,41 +44,39 @@
   </style>
 </head>
 <body>
-  <h1>transfer ticker</h1>
+  <h1>⚽ Transfer Ticker</h1>
   <div class="ticker-container" id="ticker"></div>
 
   <script>
-    const transfers = [
-      {
-        player: \"Kylian Mbappé\",
-        from: \"PSG\",
-        to: \"Real Madrid\",
-        fee: \"Free Transfer\",
-        contract: \"until 2029\",
-        source: \"https://example.com/mbappe\"
-      },
-      {
-        player: \"Joshua Kimmich\",
-        from: \"Bayern Munich\",
-        to: \"Manchester City\",
-        fee: \"€70M\",
-        contract: \"until 2028\",
-        source: \"https://example.com/kimmich\"
-      }
-    ];
+    async function loadTransfers() {
+      try {
+        const res = await fetch("http://localhost:3000/api/transfers");
+        const data = await res.json();
 
-    const container = document.getElementById(\"ticker\");
-    transfers.forEach((t, i) => {
-      const div = document.createElement(\"div\");
-      div.className = \"ticker-entry\";
-      div.style.animationDelay = `${i * 0.2}s`;
-      div.innerHTML = `
-        <a href=\"${t.source}\" target=\"_blank\">
-          <strong>${t.player}</strong> moves from <strong>${t.from}</strong> to <strong>${t.to}</strong> – ${t.fee}${t.contract ? \", Contract: \" + t.contract : \"\"}
-        </a>
-      `;
-      container.appendChild(div);
-    });
+        const container = document.getElementById("ticker");
+        container.innerHTML = ""; // leeren vor Neuladung
+
+        data.forEach((entry, index) => {
+          const div = document.createElement("div");
+          div.className = "ticker-entry";
+          div.style.animationDelay = `${index * 0.2}s`;
+          div.innerHTML = `
+            <a href="${entry.url}" target="_blank">
+              <strong>${entry.source}:</strong> ${entry.text}
+            </a>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error("Fehler beim Laden der Transfers:", err);
+      }
+    }
+
+    // beim Start laden
+    loadTransfers();
+
+    // optional: alle 30 Sekunden neu laden
+    setInterval(loadTransfers, 30000);
   </script>
 </body>
 </html>
